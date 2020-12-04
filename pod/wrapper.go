@@ -33,7 +33,7 @@ func DeletePod(podName, podNamespace, kubeconfigPath string, opts *metav1.Delete
 	return c.DeletePod(podNamespace, podName, opts)
 }
 
-// DeletePodWithCheck delets Pod and starts a goroutine in background to check the delete operation.
+// DeletePodWithCheck deletes Pod and starts a goroutine in background to check the delete operation.
 func DeletePodWithCheck(podName, podNamespace, kubeconfigPath string, opts *metav1.DeleteOptions) error {
 	if opts == nil {
 		return fmt.Errorf("*metav1.DeleteOptions is nil in DeletePod")

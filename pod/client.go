@@ -17,7 +17,7 @@ func (c *Client) GetPods(namespace string, opts *metav1.ListOptions) (*corev1.Po
 	return c.kubeClient.CoreV1().Pods(namespace).List(*opts)
 }
 
-// GetPod returns the Pod instance by namesapce, Pod name and get options.
+// GetPod returns the Pod instance by namespace, Pod name and get options.
 func (c *Client) GetPod(namespace, podName string, opts *metav1.GetOptions) (*corev1.Pod, error) {
 	return c.kubeClient.CoreV1().Pods(namespace).Get(podName, *opts)
 }
