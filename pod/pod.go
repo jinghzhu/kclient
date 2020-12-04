@@ -6,7 +6,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// GetPodImages returns all contariner images for the given Pod in a string array.
+// GetPodImages returns all container images for the given Pod in a string array.
 func GetPodImages(pod *corev1.Pod) []string {
 	if pod == nil || pod.Spec.Containers == nil {
 		return make([]string, 0)
@@ -34,7 +34,7 @@ func GetPodCommands(pod *corev1.Pod) []string {
 	return cmds
 }
 
-// IsCompleted retruns true if for each contaniner of the pod, its State is Terminated and Reason is Completed.
+// IsCompleted retruns true if for each container of the Pod, its State is Terminated and Reason is Completed.
 // Although Pod is in Succeeded status, it sometimes doesn't mean all containers were run as expected.
 // For example, container may be end by OOMKilled but its Status is Succeeded and the container's State is Terminated.
 func IsCompleted(pod *corev1.Pod) bool {
