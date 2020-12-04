@@ -15,7 +15,7 @@ func PanicHandler() (caller string, fileName string, lineNum int, stackTrace str
 		caller, fileName, stackTrace = name, file, string(buf)
 		lineNum = line
 		rec = r
-		fmt.Printf("%s %s ln%d: PANIC Defered : %v\n", name, file, line, r)
+		fmt.Printf("%s %s ln%d: PANIC Deferred : %v\n", name, file, line, r)
 		fmt.Printf("%s %s ln%d: Stack Trace : %s", name, file, line, string(buf))
 	}
 

@@ -31,7 +31,7 @@ func DeletePod(ctx context.Context, podName, podNamespace, kubeconfigPath string
 	return c.DeletePod(ctx, podNamespace, podName, opts)
 }
 
-// DeletePodWithCheck delets Pod and starts a goroutine in background to check the delete operation.
+// DeletePodWithCheck deletes Pod and starts a goroutine in background to check the delete operation.
 func DeletePodWithCheck(ctx context.Context, podName, podNamespace, kubeconfigPath string, opts metav1.DeleteOptions) error {
 	c, err := New("", kubeconfigPath)
 	if err != nil {
