@@ -7,10 +7,27 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/jinghzhu/goutils/utils"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
+
+// CreatePodWithRetry creates a Pod with retry.
+func (c *Client) CreatePodWithRetry(spec *corev1.Pod, namespace string, opts metav1.CreateOptions) (*corev1.Pod, error) {
+	var podCreated *corev1.Pod
+	_, err := utils.Retry(30*time.Millisecond, 2, func() (bool, error) {
+		pod, err1 := c.kubeClient.CoreV1().Pods(namespace).Create(c.GetContext(), spec, opts)
+		if err1 == nil {
+			podCreated = pod
+
+			return true, nil
+		}
+		return false, err1
+	})
+
+	return podCreated, err
+}
 
 // ListPods returns a list of Pods by namespace and list options.
 func (c *Client) ListPods(namespace string, opts *metav1.ListOptions) (*corev1.PodList, error) {
