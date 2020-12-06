@@ -41,7 +41,8 @@ func DeletePodWithCheck(ctx context.Context, podName, podNamespace, kubeconfigPa
 	return c.DeletePodWithCheck(ctx, podNamespace, podName, opts)
 }
 
-func GetPods(ctx context.Context, podNamespace, kubeconfigPath string, opts *metav1.ListOptions) (*corev1.PodList, error) {
+// ListPods list a list of Pods.
+func ListPods(ctx context.Context, podNamespace, kubeconfigPath string, opts *metav1.ListOptions) (*corev1.PodList, error) {
 	if opts == nil {
 		return nil, fmt.Errorf("*metav1.ListOptions is nil in GetPods")
 	}
