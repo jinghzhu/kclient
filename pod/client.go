@@ -13,6 +13,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
+// CreatePod creates a Pod.
+func (c *Client) CreatePod(spec *corev1.Pod, namespace string, opts metav1.CreateOptions) (*corev1.Pod, error) {
+	return c.kubeClient.CoreV1().Pods(namespace).Create(c.GetContext(), spec, opts)
+}
+
 // CreatePodWithRetry creates a Pod with retry.
 func (c *Client) CreatePodWithRetry(spec *corev1.Pod, namespace string, opts metav1.CreateOptions) (*corev1.Pod, error) {
 	var podCreated *corev1.Pod
