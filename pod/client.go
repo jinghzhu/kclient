@@ -35,18 +35,18 @@ func (c *Client) CreatePodWithRetry(spec *corev1.Pod, namespace string, opts met
 }
 
 // ListPods returns a list of Pods by namespace and list options.
-func (c *Client) ListPods(namespace string, opts *metav1.ListOptions) (*corev1.PodList, error) {
-	return c.kubeClient.CoreV1().Pods(namespace).List(c.GetContext(), *opts)
+func (c *Client) ListPods(namespace string, opts metav1.ListOptions) (*corev1.PodList, error) {
+	return c.kubeClient.CoreV1().Pods(namespace).List(c.GetContext(), opts)
 }
 
 // GetPod returns the Pod instance by namespace, Pod name and get options.
-func (c *Client) GetPod(namespace, podName string, opts *metav1.GetOptions) (*corev1.Pod, error) {
-	return c.kubeClient.CoreV1().Pods(namespace).Get(c.GetContext(), podName, *opts)
+func (c *Client) GetPod(namespace, podName string, opts metav1.GetOptions) (*corev1.Pod, error) {
+	return c.kubeClient.CoreV1().Pods(namespace).Get(c.GetContext(), podName, opts)
 }
 
 // IsExist returns false if the Pod doesn't exist in the specific namespace.
 func (c *Client) IsExist(namespace, podName string) (bool, error) {
-	_, err := c.GetPod(namespace, podName, &metav1.GetOptions{})
+	_, err := c.GetPod(namespace, podName, metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		return false, nil
 	}
@@ -154,8 +154,8 @@ func (c *Client) GetLogString(namespace, podName string, opts *corev1.PodLogOpti
 }
 
 // GetEvents returns a EventList object for the given Pod name and list options.
-func (c *Client) GetEvents(namespace, podName string, opts *metav1.ListOptions) (*corev1.EventList, error) {
-	return c.kubeClient.CoreV1().Events(namespace).List(c.GetContext(), *opts)
+func (c *Client) GetEvents(namespace, podName string, opts metav1.ListOptions) (*corev1.EventList, error) {
+	return c.kubeClient.CoreV1().Events(namespace).List(c.GetContext(), opts)
 }
 
 // GetVersion returns the version of the the current REST client
