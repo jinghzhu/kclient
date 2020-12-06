@@ -2,7 +2,6 @@ package pod
 
 import (
 	"bytes"
-	"context"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -14,18 +13,18 @@ import (
 )
 
 // ListPods returns a list of Pods by namespace and list options.
-func (c *Client) ListPods(ctx context.Context, namespace string, opts *metav1.ListOptions) (*corev1.PodList, error) {
-	return c.kubeClient.CoreV1().Pods(namespace).List(ctx, *opts)
+func (c *Client) ListPods(namespace string, opts *metav1.ListOptions) (*corev1.PodList, error) {
+	return c.kubeClient.CoreV1().Pods(namespace).List(c.GetContext(), *opts)
 }
 
 // GetPod returns the Pod instance by namespace, Pod name and get options.
-func (c *Client) GetPod(ctx context.Context, namespace, podName string, opts *metav1.GetOptions) (*corev1.Pod, error) {
-	return c.kubeClient.CoreV1().Pods(namespace).Get(ctx, podName, *opts)
+func (c *Client) GetPod(namespace, podName string, opts *metav1.GetOptions) (*corev1.Pod, error) {
+	return c.kubeClient.CoreV1().Pods(namespace).Get(c.GetContext(), podName, *opts)
 }
 
 // IsExist returns false if the Pod doesn't exist in the specific namespace.
-func (c *Client) IsExist(ctx context.Context, namespace, podName string) (bool, error) {
-	_, err := c.GetPod(ctx, namespace, podName, &metav1.GetOptions{})
+func (c *Client) IsExist(namespace, podName string) (bool, error) {
+	_, err := c.GetPod(namespace, podName, &metav1.GetOptions{})
 	if errors.IsNotFound(err) {
 		return false, nil
 	}
@@ -37,52 +36,52 @@ func (c *Client) IsExist(ctx context.Context, namespace, podName string) (bool, 
 }
 
 // AddPodLabel adds a label field into Pod. If the key already exists, it'll overwrite it.
-func (c *Client) AddPodLabel(ctx context.Context, pod *corev1.Pod, key string, value string) (*corev1.Pod, error) {
+func (c *Client) AddPodLabel(pod *corev1.Pod, key string, value string) (*corev1.Pod, error) {
 	if pod.GetLabels() == nil {
 		pod.SetLabels(make(map[string]string))
 	}
 	pod.Labels[key] = value
 
-	return c.UpdatePod(ctx, pod, pod.GetNamespace(), metav1.UpdateOptions{})
+	return c.UpdatePod(pod, pod.GetNamespace(), metav1.UpdateOptions{})
 }
 
 // AddAnnotation adds a new key-value pair into Pod annotation field.
-func (c *Client) AddAnnotation(ctx context.Context, pod *corev1.Pod, key, value string) (*corev1.Pod, error) {
+func (c *Client) AddAnnotation(pod *corev1.Pod, key, value string) (*corev1.Pod, error) {
 	if pod.GetAnnotations() == nil {
 		pod.SetAnnotations(make(map[string]string))
 	}
 	pod.Annotations[key] = value
 
-	return c.UpdatePod(ctx, pod, pod.GetNamespace(), metav1.UpdateOptions{})
+	return c.UpdatePod(pod, pod.GetNamespace(), metav1.UpdateOptions{})
 }
 
 // UpdatePod accepts a context, pod and namespace. It returns a pointer to pod and error.
-func (c *Client) UpdatePod(ctx context.Context, pod *corev1.Pod, namespace string, opts metav1.UpdateOptions) (*corev1.Pod, error) {
-	return c.kubeClient.CoreV1().Pods(namespace).Update(ctx, pod, opts)
+func (c *Client) UpdatePod(pod *corev1.Pod, namespace string, opts metav1.UpdateOptions) (*corev1.Pod, error) {
+	return c.kubeClient.CoreV1().Pods(namespace).Update(c.GetContext(), pod, opts)
 }
 
 // DeletePod talks to Kubernetes to delete a Pod by given delete options.
-func (c *Client) DeletePod(ctx context.Context, namespace, podName string, opts metav1.DeleteOptions) error {
-	return c.kubeClient.CoreV1().Pods(namespace).Delete(ctx, podName, opts)
+func (c *Client) DeletePod(namespace, podName string, opts metav1.DeleteOptions) error {
+	return c.kubeClient.CoreV1().Pods(namespace).Delete(c.GetContext(), podName, opts)
 }
 
 // DeletePodWithCheck deletes the Pod and will start a goroutine in background
 // to confirm whether the Pod is successfully deleted.
-func (c *Client) DeletePodWithCheck(ctx context.Context, namespace, podName string, opts metav1.DeleteOptions) error {
+func (c *Client) DeletePodWithCheck(namespace, podName string, opts metav1.DeleteOptions) error {
 	if *opts.GracePeriodSeconds < int64(0) {
 		opts.GracePeriodSeconds = &defaultDeletePeriod
 	}
-	err := c.DeletePod(ctx, namespace, podName, opts)
+	err := c.DeletePod(namespace, podName, opts)
 	if err != nil {
 		return err
 	}
-	go c.WaitForDeletion(ctx, namespace, podName, opts.GracePeriodSeconds)
+	go c.WaitForDeletion(namespace, podName, opts.GracePeriodSeconds)
 
 	return nil
 }
 
 // WaitForDeletion will wait for a period to check if Pod is deleted.
-func (c *Client) WaitForDeletion(ctx context.Context, namespace, podName string, period *int64) error {
+func (c *Client) WaitForDeletion(namespace, podName string, period *int64) error {
 	var waitTime time.Duration
 	if period != nil {
 		waitTime = time.Duration(*period) * time.Second
@@ -98,12 +97,12 @@ func (c *Client) WaitForDeletion(ctx context.Context, namespace, podName string,
 		time.Duration(defaultDeletePeriod)*time.Second,
 		3*time.Duration(defaultDeletePeriod)*time.Second,
 		func() (bool, error) {
-			exist, err := c.IsExist(ctx, namespace, podName)
+			exist, err := c.IsExist(namespace, podName)
 			if err != nil {
 				return false, err
 			} else if exist {
 				var gracePeriod int64
-				c.DeletePod(ctx, namespace, podName, metav1.DeleteOptions{GracePeriodSeconds: &gracePeriod})
+				c.DeletePod(namespace, podName, metav1.DeleteOptions{GracePeriodSeconds: &gracePeriod})
 
 				return false, nil
 			}
@@ -116,8 +115,8 @@ func (c *Client) WaitForDeletion(ctx context.Context, namespace, podName string,
 }
 
 // GetLogString returns the log of Pod in string.
-func (c *Client) GetLogString(ctx context.Context, namespace, podName string, opts *corev1.PodLogOptions) (string, error) {
-	stream, err := c.kubeClient.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(ctx)
+func (c *Client) GetLogString(namespace, podName string, opts *corev1.PodLogOptions) (string, error) {
+	stream, err := c.kubeClient.CoreV1().Pods(namespace).GetLogs(podName, opts).Stream(c.GetContext())
 	defer func() {
 		if stream != nil {
 			stream.Close()
@@ -133,8 +132,8 @@ func (c *Client) GetLogString(ctx context.Context, namespace, podName string, op
 }
 
 // GetEvents returns a EventList object for the given Pod name and list options.
-func (c *Client) GetEvents(ctx context.Context, namespace, podName string, opts *metav1.ListOptions) (*corev1.EventList, error) {
-	return c.kubeClient.CoreV1().Events(namespace).List(ctx, *opts)
+func (c *Client) GetEvents(namespace, podName string, opts *metav1.ListOptions) (*corev1.EventList, error) {
+	return c.kubeClient.CoreV1().Events(namespace).List(c.GetContext(), *opts)
 }
 
 // GetVersion returns the version of the the current REST client
