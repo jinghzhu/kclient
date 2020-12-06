@@ -42,10 +42,7 @@ func DeletePodWithCheck(ctx context.Context, podName, podNamespace, kubeconfigPa
 }
 
 // ListPods list a list of Pods.
-func ListPods(ctx context.Context, podNamespace, kubeconfigPath string, opts *metav1.ListOptions) (*corev1.PodList, error) {
-	if opts == nil {
-		return nil, fmt.Errorf("*metav1.ListOptions is nil in GetPods")
-	}
+func ListPods(ctx context.Context, podNamespace, kubeconfigPath string, opts metav1.ListOptions) (*corev1.PodList, error) {
 	c, err := New(ctx, "", kubeconfigPath)
 	if err != nil {
 		return nil, fmt.Errorf("Fail to create Kubernetes client in GetPods: %v", err)
