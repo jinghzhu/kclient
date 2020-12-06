@@ -51,5 +51,5 @@ func ListPods(ctx context.Context, podNamespace, kubeconfigPath string, opts *me
 		return nil, fmt.Errorf("Fail to create Kubernetes client in GetPods: %v", err)
 	}
 
-	return c.GetPods(ctx, podNamespace, opts)
+	return c.ListPods(ctx, podNamespace, opts)
 }
