@@ -13,8 +13,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-// GetPods returns a list of Pods by namespace and list options.
-func (c *Client) GetPods(ctx context.Context, namespace string, opts *metav1.ListOptions) (*corev1.PodList, error) {
+// ListPods returns a list of Pods by namespace and list options.
+func (c *Client) ListPods(ctx context.Context, namespace string, opts *metav1.ListOptions) (*corev1.PodList, error) {
 	return c.kubeClient.CoreV1().Pods(namespace).List(ctx, *opts)
 }
 
