@@ -9,6 +9,7 @@ require (
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/googleapis/gnostic v0.4.0 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
+	github.com/jinghzhu/goutils v0.0.0-20190928081314-4579c699c136
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
